@@ -50,13 +50,19 @@ def print_tweet(tweet):
 ## Parse options
 parser = OptionParser()
 parser.add_option("-f", "--file", dest="filename",
-                  help="Path to Twitter JSON archive.", metavar="FILE")
+                  help="Path to Twitter JSON archive.", metavar="FILENAME")
 parser.add_option("-t", "--hashtag", dest="hashtag",
                   help="Filter by hashtag", metavar="HASHTAG")
+parser.add_option("-g", "--list-hashtags", action="store_true",
+                  dest="list_hashtags",
+                  help="List the hashtags", metavar="LIST_HASHTAGS")
 (options, args) = parser.parse_args()
 
 ## Read Twitter file (JSON format)
 tweets_js = read_twitter_json(options.filename)
+
+## Variable initialization
+hashtags = []
 
 ## Loop over tweets
 for tweet in tweets_js:
@@ -66,6 +72,14 @@ for tweet in tweets_js:
         # Filter by hashtag
         if (options.hashtag in tweet_simple['hashtags']):
             print_tweet(tweet_simple)
+    elif (options.list_hashtags):
+        for tag in tweet_simple['hashtags']:
+            if (not tag in hashtags):
+                hashtags.append(tag)
     else:
         print_tweet(tweet_simple)
 
+## List hashtags
+if (options.list_hashtags):
+    for tag in hashtags:
+        print(tag)
