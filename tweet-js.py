@@ -1,7 +1,12 @@
 #!/usr/bin/python3
+import datetime
 import json
+import pytz
 
+from dateutil.parser import parse
 from optparse import OptionParser
+
+utc = pytz.UTC
 
 def read_twitter_json(file_name):
     """ Read JSON file and returns a json object"""
@@ -27,6 +32,7 @@ def tweet_decode(tweet):
     # Get data from tweet
     tweet_simple['full_text'] = tweet['tweet']['full_text'] # Text
     tweet_simple['created_at'] = tweet['tweet']['created_at'] # Text
+    tweet_simple['datetime'] = parse(tweet_simple['created_at']) # Parse date to datetime
 
     # Initialize
     tweet_simple['hashtags'] = [] # List
@@ -56,7 +62,18 @@ parser.add_option("-t", "--hashtag", dest="hashtag",
 parser.add_option("-g", "--list-hashtags", action="store_true",
                   dest="list_hashtags",
                   help="List the hashtags", metavar="LIST_HASHTAGS")
+parser.add_option("-s", "--date-start", dest="date_start",
+                  help="List the hashtags", metavar="LIST_HASHTAGS")
+parser.add_option("-e", "--date-end", dest="date_end",
+                  help="List the hashtags", metavar="LIST_HASHTAGS")
+
 (options, args) = parser.parse_args()
+
+# Validate dates
+if (options.date_start):
+    date_start = utc.localize(parse(options.date_start))
+if (options.date_end):
+    date_end = utc.localize(parse(options.date_end))
 
 ## Read Twitter file (JSON format)
 tweets_js = read_twitter_json(options.filename)
@@ -68,6 +85,13 @@ hashtags = []
 for tweet in tweets_js:
     # Decode tweet in a simple structure
     tweet_simple = tweet_decode(tweet)
+    if options.date_start:
+        if tweet_simple['datetime'] <= date_start:
+            continue
+    if options.date_end:
+        if tweet_simple['datetime'] >= date_end:
+            continue
+
     if options.hashtag:
         # Filter by hashtag
         if (options.hashtag in tweet_simple['hashtags']):

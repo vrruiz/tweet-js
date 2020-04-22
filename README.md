@@ -18,3 +18,10 @@ $ python3 tweet-js.py -f path/data/tweet.js -t hashtag
 It will print the content of the tweets with this hashtag.
 
 
+=== Filter by date ===
+
+The -s argument filters messages by start date and -e argument
+filters messages by end date. They can be used together.
+
+$ python3 tweet-js.py -f path/data/tweet.js -s 2019-01-01 -e 2020-01-01
+
